@@ -373,7 +373,7 @@ local function EnableGUI()
 end
 
 
-local dev_id = 640603301
+local dev_id = 90063030
 
 local function verifyDev(player:Player | Model)
 	local pObj
