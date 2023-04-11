@@ -1,1 +1,301 @@
+if game.PlaceId == 11987476545 then
+	local Lib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
+	local w = game:GetService("Workspace")
+	local vu = game:GetService("VirtualUser")
+	local ps = game:GetService("Players")
+
+	_G.farming = false
+	_G.AutoDeposit = false
+	_G.DepositAmmount = 0
+	_G.AutoGymTime = false
+	_G.typeTrain = nil
+	_G.SaveGymTime = nil
+
+
+	local function Bye()
+		local a = game:GetService("Players").LocalPlayer.Backpack.Client
+
+		if a:FindFirstChild("ClientCheck") then a:FindFirstChild("ClientCheck"):Destroy() end
+		if a:FindFirstChild("Check") then a:FindFirstChild("Check"):Destroy() end
+	end
+
+	task.wait(0.1)
+
+	Bye()
+
+	for _, model in pairs(w["Game"]["Map"]:GetDescendants()) do
+		if model.Name == "Box" then
+			model:Destroy()
+		end
+	end
+
+	local player = ps.LocalPlayer
+
+	local lStats = player:WaitForChild("Stats")
+	local inCombat = player.PlayerGui:WaitForChild("CombatTag")["Bool"]
+	local atm = player.PlayerGui:WaitForChild("MainGui").ATM.Server
+
+	local ActYen = lStats["Yen"]
+	local BankYen = lStats["YenBank"]
+
+	local backpack = player["Backpack"]
+	local getcrate = w.Game.JobStuff.Crates.ClickDetector
+
+	local stats = lStats
+	local var = nil
+	
+	--[[
+	5 --> Train All Stats
+	4 --> Stop Execution
+	3 --> Defense
+	2 --> Stamina
+	1 --> Strength
+	]]--
+
+	local function AutoBuyGym()
+		if _G.AutoGymTime and stats["GymTime"].Value <= 0 then
+			if ActYen.Value >= 5000 then
+				game:GetService("ReplicatedStorage").Events.DialogueAnswer:InvokeServer("cashier girl", "take")
+			elseif BankYen.Value >= 5000 then
+				atm:InvokeServer("withdraw", 5000)
+				local lHumanoid = player.Character:WaitForChild("Humanoid")
+
+				for _, tool in pairs(player.Character:GetChildren()) do
+					if tool:IsA("Tool") and tool:FindFirstChild("Money") then
+						if tool["Money"].Value >= 5000 then
+							tool:Activate()
+						end
+					end
+				end
+
+				for _, tool in pairs(player["Backpack"]:GetChildren()) do
+					if tool:IsA("Tool") and tool:FindFirstChild("Money") then
+						if tool["Money"].Value >= 5000 then
+							task.wait()
+							lHumanoid:EquipTool(tool)
+							task.wait()
+							tool:Activate()
+						end
+					end
+				end
+			end
+		end
+	end
+
+	local function TrainStat(stat_type)
+		AutoBuyGym()
+		
+		if stat_type == 3 then
+			var = "SitUp"
+		elseif stat_type == 2 then
+			var = "Squats"
+		elseif stat_type == 1 then
+			var = "PushUp"
+		end
+
+		if stats["Stamina"].Value >= (player.Character:WaitForChild("INFO")["MaxStamina"].Value - 1.5) and not backpack:FindFirstChild("inAction") then
+			for _, p in pairs(w.Game.WorkOut:FindFirstChild(var):GetChildren()) do
+				if not p:FindFirstChild("Busy") then
+					fireproximityprompt(p.ProximityPrompt)
+					player.Character:WaitForChild("HumanoidRootPart").CFrame = p.CFrame * CFrame.new(0, 5, 0)
+				end
+			end 
+		elseif backpack:FindFirstChild("inAction") and _G.SaveGymTime then
+			player.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(1046, 121, -1540)
+			task.wait(5)
+		end
+	end
+
+	task.spawn(function()
+		while task.wait(2) do
+			if _G.typeTrain == 1 then
+				TrainStat(1)
+			elseif _G.typeTrain == 2 then
+				TrainStat(2)
+			elseif _G.typeTrain == 3 then
+				TrainStat(3)
+			elseif _G.typeTrain == 5 then
+				if stats["DefenseEXP"].Value < 30 then
+					TrainStat(3)
+				elseif stats["StrengthEXP"].Value < 5 then
+					TrainStat(1)
+				elseif stats["StaminaEXP"].Value < 30 then
+					TrainStat(2)
+				elseif stats["SpeedBoost"].Value < 8 then
+					TrainStat(2)
+				else
+					Lib:MakeNotification({
+						Name = "Auto Farm Stats",
+						Content = "Max Stats!",
+						Image = "rbxassetid://4483345998",
+						Time = 5
+					})
+				end
+			end
+		end
+	end)
+
+	-- Anti afk script
+	game:GetService("Players").LocalPlayer.Idled:connect(function()
+	vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+	wait(1)
+	vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+	end)
+
+	-- Get Crate Mission
+	task.spawn(function()
+		while task.wait() do
+			if _G.farming and not player:FindFirstChild("GetCrates") then
+				player.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(1682.737548828125, 39.69822692871094, -1238.775634765625)
+				game:GetService("ReplicatedStorage").Events.DialogueAnswer:InvokeServer("kaoru", "take")
+				while task.wait(1) do if not player:FindFirstChild("GetCrates") then break else task.wait(10) player.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(1682.737548828125, 39.69822692871094, -1238.775634765625) end end
+				print("Starting the same question again!")
+				task.wait(45)
+			end
+		end
+	end)
+
+	-- Get Crate and Do Crate Mission
+	task.spawn(function()
+		while task.wait() do
+			if _G.farming then
+				fireclickdetector(getcrate)
+				task.wait()
+				firetouchinterest(player.Character:WaitForChild("HumanoidRootPart"), w.Game.JobStuff.CratePoint, 0)
+				task.wait()
+				firetouchinterest(player.Character:WaitForChild("HumanoidRootPart"), w.Game.JobStuff.CratePoint, 1)
+			end
+		end
+	end)
+
+	local function deposit(ammount)
+		if _G.AutoDeposit then
+			if ActYen.Value >= (500000 - BankYen.Value) and not (500000 - BankYen.Value == 0 or 500000 - BankYen.Value < 500) and not inCombat.Value then
+				atm:InvokeServer("deposit", 500000 - ActYen.Value)
+			elseif (500000 - BankYen.Value) < 500 or BankYen.Value == 500000 and not inCombat.Value then
+				_G.farming = false
+				Lib:MakeNotification({
+					Name = "Auto Farm Money",
+					Content = "Max Money Ammount in Bank",
+					Image = "rbxassetid://4483345998",
+					Time = 5
+				})
+			elseif inCombat.Value then
+				atm:InvokeServer("deposit", ActYen.Value)
+			else
+				atm:InvokeServer("deposit", ammount)
+			end
+		end
+	end
+
+	-- Deposit every second
+	task.spawn(function()
+		while task.wait(0.2) do
+			deposit(_G.DepositAmmount)
+		end
+	end)
+
+	-- InCombat Deposit
+	inCombat.Changed:Connect(function(v)
+		if v then
+			while inCombat.Value do
+				task.wait(0.2)
+				deposit(5000)
+			end
+		end
+	end)
+
+	-- GUI Config
+
+	local Window = Lib:MakeWindow(
+	{	Name = "Revengers 2 Auto-Farm", 
+		HidePremium = true, 
+		SaveConfig = false, 
+		ConfigFolder = "Revengers 2 Script Auto-Farm"
+	})
+
+	local Money_Farm = Window:MakeTab({
+		Name = "Farm Money",
+		Icon = "rbxassetid://7734034513",
+		PremiumOnly = false
+	})
+
+	local Stats_Farm = Window:MakeTab({
+		Name = "Farm Stats",
+		Icon = "rbxassetid://7733916988",
+		PremiumOnly = false
+	})
+
+	-- Stats Farm
+
+	Stats_Farm:AddDropdown({
+		Name = "Select",
+		Default = "None",
+		Options = {"None", "Strength", "Stamina", "Defense", "Speed", "All Stats"},
+		Callback = function(Value)
+			if Value == "None" then
+				_G.typeTrain = 4
+			elseif Value == "Strength" then
+				_G.typeTrain = 1
+			elseif Value == "Stamina" or Value == "Speed" then
+				_G.typeTrain = 2
+			elseif Value == "Defense" then
+				_G.typeTrain = 3
+			elseif Value == "All Stats" then
+				_G.typeTrain = 5
+			end
+		end    
+	})
+
+	Stats_Farm:AddToggle({
+		Name = "Auto Gym time",
+		Default = false,
+		Callback = function(Value)
+			_G.AutoGymTime = Value
+		end    
+	})
+
+	Stats_Farm:AddToggle({
+		Name = "Save Gym Time",
+		Default = false,
+		Callback = function(Value)
+			_G.SaveGymTime = Value
+		end    
+	})
+
+	
+	-- Money Farm
+
+	Money_Farm:AddToggle({
+		Name = "Auto Farm Crate Mission",
+		Default = false,
+		Callback = function(Value)
+			_G.farming = Value
+		end    
+	})
+
+	Money_Farm:AddToggle({
+		Name = "Auto Deposit Money (Recommended)",
+		Default = false,
+		Callback = function(Value)
+			_G.AutoDeposit = Value
+		end    
+	})
+
+	Money_Farm:AddSlider({
+		Name = "Money to Auto Deposit",
+		Min = 500,
+		Max = 5000,
+		Default = 1500,
+		Color = Color3.fromRGB(255,255,255),
+		Increment = 100,
+		ValueName = "",
+		Callback = function(Value)
+			_G.DepositAmmount = Value
+		end    
+	})
+
+
+	Lib:Init()
+end
