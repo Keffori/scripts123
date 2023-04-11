@@ -249,7 +249,7 @@ if game.PlaceId == 11987476545 then
 	})
 
 	Stats_Farm:AddToggle({
-		Name = "Auto Gym time",
+		Name = "Auto Buy Gym Time",
 		Default = false,
 		Callback = function(Value)
 			_G.AutoGymTime = Value
