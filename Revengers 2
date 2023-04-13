@@ -84,8 +84,6 @@ if game.PlaceId == 11987476545 then
 	end
 
 	local function TrainStat(stat_type)
-		AutoBuyGym()
-		
 		if stat_type == 3 then
 			var = "SitUp"
 		elseif stat_type == 2 then
@@ -109,6 +107,8 @@ if game.PlaceId == 11987476545 then
 
 	task.spawn(function()
 		while task.wait(2) do
+			AutoBuyGym()
+			
 			if _G.typeTrain == 1 then
 				TrainStat(1)
 			elseif _G.typeTrain == 2 then
