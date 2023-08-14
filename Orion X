@@ -476,7 +476,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	if WindowConfig.IntroEnabled == nil then
 		WindowConfig.IntroEnabled = true
 	end
-	WindowConfig.KeyToOpenWindow = WindowConfig.KeyToOpenWindow or Enum.KeyCode.RightShift
+	WindowConfig.KeyToOpenWindow = WindowConfig.KeyToOpenWindow or "RightShift"
 	WindowConfig.IntroText = WindowConfig.IntroText or "Orion Library"
 	WindowConfig.CloseCallback = WindowConfig.CloseCallback or function() end
 	WindowConfig.ShowIcon = WindowConfig.ShowIcon or false
@@ -650,17 +650,19 @@ function OrionLib:MakeWindow(WindowConfig)
 		UIHidden = true
 		OrionLib:MakeNotification({
 			Name = "Interface Hidden",
-			Content = "Tap "  .. tostring(WindowConfig.KeyToOpenWindow) .. " to reopen the interface",
+			Content = "Tap "  .. WindowConfig.KeyToOpenWindow .. " to reopen the interface",
 			Time = 5
 		})
 		WindowConfig.CloseCallback()
 	end)
 
 	AddConnection(UserInputService.InputBegan, function(Input)
-		if Input.KeyCode == WindowConfig.KeyToOpenWindow and UIHidden then
+		if Input.KeyCode == Enum.KeyCode[WindowConfig.KeyToOpenWindow] and UIHidden then
 			MainWindow.Visible = true
-		elseif Input.KeyCode == WindowConfig.KeyToOpenWindow and not UIHidden then
+			UIHidden = false
+		elseif Input.KeyCode == Enum.KeyCode[WindowConfig.KeyToOpenWindow] and not UIHidden then
 			MainWindow.Visible = false
+			UIHidden = true
 		end
 	end)
 
