@@ -45,6 +45,7 @@ local function GetIcon(IconName)
 end   
 
 local Orion = Instance.new("ScreenGui")
+local Modal = Instance.new("TextButton")
 Orion.Name = "Orion"
 if syn then
 	syn.protect_gui(Orion)
@@ -137,6 +138,8 @@ local function Create(Name, Properties, Children)
 	return Object
 end
 
+
+
 local function CreateElement(ElementName, ElementFunction)
 	OrionLib.Elements[ElementName] = function(...)
 		return ElementFunction(...)
@@ -161,6 +164,7 @@ local function SetChildren(Element, Children)
 	end)
 	return Element
 end
+
 
 local function Round(Number, Factor)
 	local Result = math.floor(Number/Factor + (math.sign(Number) * 0.5)) * Factor
@@ -244,6 +248,29 @@ end
 
 local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,Enum.UserInputType.MouseButton3}
 local BlacklistedKeys = {Enum.KeyCode.Unknown,Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,Enum.KeyCode.Up,Enum.KeyCode.Left,Enum.KeyCode.Down,Enum.KeyCode.Right,Enum.KeyCode.Slash,Enum.KeyCode.Tab,Enum.KeyCode.Backspace,Enum.KeyCode.Escape}
+
+local freeMouse = Create("TextButton", {Name = "FMouse", Size = UDim2.new(), BackgroundTransparency = 1, Text = "", Position = UDim2.new(), Modal = true, Parent = Orion, Visible = false})
+local mouselock = false
+
+local function UnlockMouse(Value)
+	if Value then
+		mouselock = true
+
+		task.spawn(function() 
+			while mouselock do
+				UserInputService.MouseIconEnabled = Value
+				freeMouse.Visible = Value
+	
+				task.wait()
+			end
+
+			UserInputService.MouseIconEnabled = false
+			freeMouse.Visible = false
+		end)
+	else
+		mouselock = false
+	end
+end
 
 local function CheckKey(Table, Key)
 	for _, v in next, Table do
@@ -467,6 +494,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	local Minimized = false
 	local Loaded = false
 	local UIHidden = false
+	
 
 	WindowConfig = WindowConfig or {}
 	WindowConfig.Name = WindowConfig.Name or "Orion Library"
@@ -476,6 +504,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	if WindowConfig.IntroEnabled == nil then
 		WindowConfig.IntroEnabled = true
 	end
+	WindowConfig.FreeMouse = WindowConfig.FreeMouse or false
 	WindowConfig.KeyToOpenWindow = WindowConfig.KeyToOpenWindow or "RightShift"
 	WindowConfig.IntroText = WindowConfig.IntroText or "Orion Library"
 	WindowConfig.CloseCallback = WindowConfig.CloseCallback or function() end
@@ -488,6 +517,10 @@ function OrionLib:MakeWindow(WindowConfig)
 		if not isfolder(WindowConfig.ConfigFolder) then
 			makefolder(WindowConfig.ConfigFolder)
 		end	
+	end
+
+	if WindowConfig.FreeMouse then
+		UnlockMouse(true)
 	end
 
 	local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4), {
@@ -648,6 +681,11 @@ function OrionLib:MakeWindow(WindowConfig)
 	AddConnection(CloseBtn.MouseButton1Up, function()
 		MainWindow.Visible = false
 		UIHidden = true
+		
+		if WindowConfig.FreeMouse then
+			UnlockMouse(false)
+		end
+		
 		OrionLib:MakeNotification({
 			Name = "Interface Hidden",
 			Content = "Tap "  .. WindowConfig.KeyToOpenWindow .. " to reopen the interface",
@@ -661,9 +699,17 @@ function OrionLib:MakeWindow(WindowConfig)
 			if Input.KeyCode == Enum.KeyCode[WindowConfig.KeyToOpenWindow] and UIHidden then
 				MainWindow.Visible = true
 				UIHidden = false
+
+				if WindowConfig.FreeMouse then
+					UnlockMouse(true)
+				end
 			elseif Input.KeyCode == Enum.KeyCode[WindowConfig.KeyToOpenWindow] and not UIHidden then
 				MainWindow.Visible = false
 				UIHidden = true
+
+				if WindowConfig.FreeMouse then
+					UnlockMouse(false)
+				end
 				OrionLib:MakeNotification({
 					Name = "Interface Hidden",
 					Content = "Tap "  .. WindowConfig.KeyToOpenWindow .. " to reopen the interface",
