@@ -524,9 +524,8 @@ function OrionLib:MakeWindow(WindowConfig)
 		UnlockMouse(true)
 	end
 
-	local MobileOpenButton = SetChildren(SetProps(MakeElement("Button"), {Parent = Orion, Text =  "Open Menu", Size = UDim2.new(0.049, 0, 0.049, 0),  Position = UDim2.new(0.5, 0, 0.5, 0), Visible = false, Font = Enum.Font.GothamBold}), {MakeElement("Corner", 0.45)})
+	local MobileOpenButton = SetTheme(SetChildren(SetProps(MakeElement("Button"), {BackgroundTransparency = 0, Parent = Orion, Text =  "Open Menu", Size = UDim2.new(0.049, 0, 0.049, 0),  Position = UDim2.new(0.5, 0, 0.5, 0), Visible = false, Font = Enum.Font.GothamBold}), {MakeElement("Corner", 0.45)}))
 	MakeDraggable(MobileOpenButton, MobileOpenButton)
-	MobileOpenButton.Visible = true
 
 
 	local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4), {
