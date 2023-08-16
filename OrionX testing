@@ -541,12 +541,12 @@ function OrionLib:MakeWindow(WindowConfig)
 		BackgroundColor = BrickColor.new(0, 0, 0),
 		TextStrokeColor3 = Color3.new(255, 255, 255),
 		TextStrokeTransparency = 0,
-		Size = UDim2.new(0.049, 0, 0.049, 0),
+		Size = UDim2.new(0.035, 0, 0.035, 0),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 0), 
 		Visible = false, 
 		Font = Enum.Font.GothamBold
-	}), {MakeElement("Corner", 0.45), SetProps(MakeElement("AspectRatio"), {DominantAxis = 0, AspectRatio = 0.986, AspectType = 1})})
+	}), {MakeElement("Corner", 0.25), SetProps(MakeElement("AspectRatio"), {DominantAxis = 0, AspectRatio = 0.986, AspectType = 1})})
 
 	MakeDraggable(MobileOpenButton, MobileOpenButton)
 
