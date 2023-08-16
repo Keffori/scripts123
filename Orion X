@@ -701,13 +701,13 @@ function OrionLib:MakeWindow(WindowConfig)
 	end)
 
 	local function showMobileOpenButton()
-		--if UserInputService.TouchEnabled then
+		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 			if UIHidden then
 				MobileOpenButton.Visible = true
 			else
 				MobileOpenButton.Visible = false
 			end
-		--end
+		end
 	end
 
 	AddConnection(CloseBtn.MouseButton1Up, function()
