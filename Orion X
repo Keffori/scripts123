@@ -692,7 +692,6 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	local function showMobileOpenButton()
 		--if UserInputService.TouchEnabled then
-			print(MobileOpenButton.Parent)
 			if UIHidden then
 				MobileOpenButton.Visible = true
 			else
