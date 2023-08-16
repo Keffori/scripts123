@@ -286,6 +286,11 @@ CreateElement("Corner", function(Scale, Offset)
 	return Corner
 end)
 
+CreateElement("AspectRatio", function()
+	local AspectRatio = Create("UIAspectRatioConstraint")
+	return AspectRatio
+end)
+
 CreateElement("Stroke", function(Color, Thickness)
 	local Stroke = Create("UIStroke", {
 		Color = Color or Color3.fromRGB(255, 255, 255),
@@ -529,12 +534,19 @@ function OrionLib:MakeWindow(WindowConfig)
 	{
 		BackgroundTransparency = 0, 
 		Parent = Orion, 
-		Text =  "Open Menu", 
-		Size = UDim2.new(0.049, 0, 0.049, 0),  
+		Text =  "Open",
+		TextScaled = true,
+		TextSize = 14,
+		TextColor3 = Color3.new(0, 0, 0),
+		BackgroundColor = BrickColor.new(0, 0, 0),
+		TextStrokeColor3 = Color3.new(255, 255, 255),
+		TextStrokeTransparency = 0,
+		Size = UDim2.new(0.035, 0, 0.035, 0),
+		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 0), 
 		Visible = false, 
 		Font = Enum.Font.GothamBold
-	}), {MakeElement("Corner", 0.45)})
+	}), {MakeElement("Corner", 0.25), SetProps(MakeElement("AspectRatio"), {DominantAxis = 0, AspectRatio = 0.986, AspectType = 1})})
 
 	MakeDraggable(MobileOpenButton, MobileOpenButton)
 
