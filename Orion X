@@ -260,7 +260,6 @@ local function UnlockMouse(Value)
 			while mouselock do
 				UserInputService.MouseIconEnabled = Value
 				freeMouse.Visible = Value
-	
 				task.wait()
 			end
 
@@ -685,7 +684,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	MakeDraggable(DragPoint, MainWindow)
 
-	AddConnection(MobileOpenButton.MouseButton1Down, function() 
+	AddConnection(MobileOpenButton.MouseButton1Click, function() 
 		MobileOpenButton.Visible = false
 		MainWindow.Visible = true
 		UIHidden = false
