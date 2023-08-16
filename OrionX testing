@@ -535,7 +535,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		BackgroundTransparency = 0, 
 		Parent = Orion, 
 		Text =  "Open",
-		TextScale = true,
+		TextScaled = true,
 		TextSize = 14,
 		TextColor3 = Color3.new(0, 0, 0),
 		BackgroundColor = BrickColor.new(0, 0, 0),
