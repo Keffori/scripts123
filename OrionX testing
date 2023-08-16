@@ -536,7 +536,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		Parent = Orion, 
 		Text =  "Open",
 		TextColor3 = Color3.new(0, 0, 0),
-		BackgroundColor = Color3.new(0, 0, 0),
+		BackgroundColor = BrickColor.new(0, 0, 0),
 		TextStrokeColor3 = Color3.new(255, 255, 255),
 		TextStrokeTransparency = 0,
 		Size = UDim2.new(0.049, 0, 0.049, 0),
