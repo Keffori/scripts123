@@ -683,7 +683,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	MakeDraggable(DragPoint, MainWindow)
 
-	AddConnection(MobileOpenButton.MouseButton1Click, function() 
+	AddConnection(MobileOpenButton.MouseButton1Up, function() 
 		MobileOpenButton.Visible = false
 		MainWindow.Visible = true
 		UIHidden = false
