@@ -487,7 +487,9 @@ function OrionLib:Init()
 			end
 		end)		
 	end	
-end	
+end
+
+
 
 function OrionLib:MakeWindow(WindowConfig)
 	local FirstTab = true
@@ -522,6 +524,11 @@ function OrionLib:MakeWindow(WindowConfig)
 	if WindowConfig.FreeMouse then
 		UnlockMouse(true)
 	end
+
+	local MobileOpenButton = SetChildren(SetProps(MakeElement("Button"), {Text =  "Open Menu", Size = UDim2.new(0.049, 0, 0.049, 0),  Position = UDim2.new(0.5, 0, 0.5, 0), Visible = false, Font = Enum.Font.GothamBold}), {MakeElement("Corner", 0.45)})
+	MakeDraggable(MobileOpenButton, MobileOpenButton)
+	MobileOpenButton.Visible = true
+
 
 	local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4), {
 		Size = UDim2.new(1, 0, 1, -50)
@@ -678,6 +685,22 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	MakeDraggable(DragPoint, MainWindow)
 
+	AddConnection(MobileOpenButton.KeyDown, function() 
+		MobileOpenButton.Visible = false
+		MainWindow.Visible = true
+		UIHidden = false
+	end)
+
+	local function showMobileOpenButton()
+		--if UserInputService.TouchEnabled then
+			if UIHidden then
+				MobileOpenButton.Visible = true
+			else
+				MobileOpenButton.Visible = false
+			end
+		--end
+	end
+
 	AddConnection(CloseBtn.MouseButton1Up, function()
 		MainWindow.Visible = false
 		UIHidden = true
@@ -691,6 +714,8 @@ function OrionLib:MakeWindow(WindowConfig)
 			Content = "Tap "  .. WindowConfig.KeyToOpenWindow .. " to reopen the interface",
 			Time = 3
 		})
+
+		showMobileOpenButton()
 		WindowConfig.CloseCallback()
 	end)
 
@@ -699,10 +724,11 @@ function OrionLib:MakeWindow(WindowConfig)
 			if Input.KeyCode == Enum.KeyCode[WindowConfig.KeyToOpenWindow] and UIHidden then
 				MainWindow.Visible = true
 				UIHidden = false
-
 				if WindowConfig.FreeMouse then
 					UnlockMouse(true)
 				end
+
+				showMobileOpenButton()
 			elseif Input.KeyCode == Enum.KeyCode[WindowConfig.KeyToOpenWindow] and not UIHidden then
 				MainWindow.Visible = false
 				UIHidden = true
@@ -715,6 +741,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					Content = "Tap "  .. WindowConfig.KeyToOpenWindow .. " to reopen the interface",
 					Time = 3
 				})
+
+				showMobileOpenButton()
 			end
 		end
 	end)
