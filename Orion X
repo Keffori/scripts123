@@ -536,7 +536,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		Font = Enum.Font.GothamBold
 	}), {MakeElement("Corner", 0.45)})
 
-	--MakeDraggable(MobileOpenButton, MobileOpenButton)
+	MakeDraggable(MobileOpenButton, MobileOpenButton)
 
 
 	local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 4), {
