@@ -1166,6 +1166,36 @@ function OrionLib:MakeWindow(WindowConfig)
 					SliderBar
 				}), "Second")
 
+				local Dragging, DragInput, MousePos, FramePos = false
+
+				AddConnection(SliderBar.InputBegan, function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+						Dragging = true
+						MousePos = Input.Position
+						FramePos = SliderBar.Position
+		
+						AddConnection(Input.Changed, function()
+							if Input.UserInputState == Enum.UserInputState.End then
+								Dragging = false
+							end
+						end)
+					end
+				end)
+				AddConnection(SliderBar.InputChanged, function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+						DragInput = Input
+					end
+				end)
+				AddConnection(UserInputService.InputChanged, function(Input)
+					if Input == DragInput and Dragging then
+						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+						Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale)) 
+						SaveCfg(game.GameId)
+					end
+				end)
+
+				--[[
+
 				SliderBar.InputBegan:Connect(function(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
 						Dragging = true 
@@ -1177,14 +1207,23 @@ function OrionLib:MakeWindow(WindowConfig)
 					end 
 				end)
 
-				UserInputService.InputChanged:Connect(function(Input)
-					if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch  then 
-						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
-						Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale)) 
-						SaveCfg(game.GameId)
-					end
+				SliderBar.MouseButton1Down:Connect(function()
+					local Location;
+					local loop; loop = RunService.Stepped:Connect(function()
+						if Dragging then
+							Location = UserInputService:GetMouseLocation().X
+							local SizeScale = math.clamp((Location - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+							Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale)) 
+							SaveCfg(game.GameId)
+						else
+							loop:Disconnect()
+						end
+					end)
 				end)
 
+				
+				]]--
+				
 				function Slider:Set(Value)
 					self.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)
 					TweenService:Create(SliderDrag,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = UDim2.fromScale((self.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}):Play()
