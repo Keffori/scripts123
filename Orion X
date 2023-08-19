@@ -46,6 +46,9 @@ end
 
 local Orion = Instance.new("ScreenGui")
 local Modal = Instance.new("TextButton")
+
+local FocusDrag = nil
+
 Orion.Name = "Orion"
 if syn then
 	syn.protect_gui(Orion)
@@ -1177,17 +1180,20 @@ function OrionLib:MakeWindow(WindowConfig)
 						AddConnection(Input.Changed, function()
 							if Input.UserInputState == Enum.UserInputState.End then
 								Dragging = false
+								FocusDrag = nil
 							end
 						end)
 					end
 				end)
 				AddConnection(SliderBar.InputChanged, function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+					if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch and not FocusDrag then
 						DragInput = Input
+						FocusDrag = DragInput
 					end
 				end)
+
 				AddConnection(UserInputService.InputChanged, function(Input)
-					if Input == DragInput and Dragging then
+					if Input == DragInput and Input == FocusDrag and Dragging then
 						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
 						Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale)) 
 						SaveCfg(game.GameId)
@@ -1717,9 +1723,82 @@ function OrionLib:MakeWindow(WindowConfig)
 				ColorH = 1 - (math.clamp(HueSelection.AbsolutePosition.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
 				ColorS = (math.clamp(ColorSelection.AbsolutePosition.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
 				ColorV = 1 - (math.clamp(ColorSelection.AbsolutePosition.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
+				
+				-- Color
+
+				local Dragging, DragInput, MousePos, FramePos = false
+
+				AddConnection(Color.InputBegan, function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+						Dragging = true
+						MousePos = Input.Position
+						FramePos = ColorSelection.Position
+		
+						AddConnection(Input.Changed, function()
+							if Input.UserInputState == Enum.UserInputState.End then
+								Dragging = false
+								FocusDrag = nil
+							end
+						end)
+					end
+				end)
+
+				AddConnection(Color.InputChanged, function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch and not FocusDrag then
+						DragInput = Input
+						FocusDrag = DragInput
+					end
+				end)
+				
+				AddConnection(UserInputService.InputChanged, function(Input)
+					if Input == DragInput and Dragging and Input == FocusDrag then
+						local ColorX = (math.clamp(DragInput.Position.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
+						local ColorY = (math.clamp(Input.Position.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
+						ColorSelection.Position = UDim2.new(ColorX, 0, ColorY, 0)
+						ColorS = ColorX
+						ColorV = 1 - ColorY
+						UpdateColorPicker()
+					end
+				end)
+
+				-- Hue
+
+				local Dragging_1, DragInput_1, MousePos_1, FramePos_1 = false
+
+				AddConnection(Hue.InputBegan, function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+						Dragging_1 = true
+						MousePos_1 = Input.Position
+						FramePos_1 = HueSelection.Position
+		
+						AddConnection(Input.Changed, function()
+							if Input.UserInputState == Enum.UserInputState.End then
+								Dragging_1 = false
+								FocusDrag = nil
+							end
+						end)
+					end
+				end)
+				AddConnection(Hue.InputChanged, function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch and not FocusDrag then
+						DragInput_1 = Input
+						FocusDrag = DragInput_1
+					end
+				end)
+				
+				AddConnection(UserInputService.InputChanged, function(Input)
+					if Input == DragInput_1 and Dragging_1 and DragInput_1 == FocusDrag then
+						local HueY = (math.clamp(Input.Position.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
+						HueSelection.Position = UDim2.new(0.5, 0, HueY, 0)
+						ColorH = 1 - HueY
+						UpdateColorPicker()
+					end
+				end)
+
+				--[[
 
 				AddConnection(Color.InputBegan, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 						if ColorInput then
 							ColorInput:Disconnect()
 						end
@@ -1735,7 +1814,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				AddConnection(Color.InputEnded, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 						if ColorInput then
 							ColorInput:Disconnect()
 						end
@@ -1743,7 +1822,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				AddConnection(Hue.InputBegan, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 						if HueInput then
 							HueInput:Disconnect()
 						end;
@@ -1760,12 +1839,13 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				AddConnection(Hue.InputEnded, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if input.UserInputType == Enum.UserInputType.MouseButton1 and input.UserInputType == Enum.UserInputType.Touch then
 						if HueInput then
 							HueInput:Disconnect()
 						end
 					end
 				end)
+				]]--
 
 				function Colorpicker:Set(Value)
 					Colorpicker.Value = Value
